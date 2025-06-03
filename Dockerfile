@@ -1,4 +1,4 @@
-FROM node:22-alpine as builder
+FROM node:22-alpine AS builder
 RUN npm install -g typescript
 
 # Set the working directory inside the container
