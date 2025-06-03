@@ -41,8 +41,8 @@ Then, configure your MCP client (e.g. Claude) like this:
 
 ## Development
 Building from source:
-`yarn setup
-npm run build`
+`yarn install`
+`yarn build`
 
 ## Configuration
 The server requires the following environment variables:
