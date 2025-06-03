@@ -1,0 +1,28 @@
+{
+  "name": "@cato-networks/mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for using Cato Network's API",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && chmod 755 build/index.js",
+    "start": "yarn build && node build/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "graphql": "^16.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "typescript": "^5.8.3"
+  },
+  "type": "module",
+  "bin": {
+    "cato-mcp-cma": "./build/index.js"
+  },
+  "files": [
+    "build"
+  ]
+}

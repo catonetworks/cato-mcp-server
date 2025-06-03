@@ -1,0 +1,23 @@
+# Build output
+build
+
+# Node modules
+node_modules
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.*
+
+# IDEs and editors
+.vscode
+.idea
+
+# git-related
+.git
+.gitignore
+
+# Docker-related
+Dockerfile
