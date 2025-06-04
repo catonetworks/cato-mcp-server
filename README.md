@@ -4,20 +4,16 @@ A Model Context Protocol (MCP) server implementation that integrates with Cato C
 
 ## Overview
 
-This server implements the Model Context Protocol to allow AI assistants to interact with Cato's GraphQL API. It provides tools that enable AI models to query and retrieve information from Cato systems in a standardized way.
+This server implements the Model Context Protocol to allow AI assistants to interact with Cato's GraphQL API.  
+It provides tools that enable AI models to query and retrieve information from Cato systems in a standardized way.
 
 The provided MCP server has been tested for compatibility with popular MCP clients (non-free tier) - such as Cursor and Claude Desktop using the Claude Sonnet 3.7 model, and is recommended for use with these clients.
 
-## Deployment using Docker (recommended)
+The server is available as a docker image at ghcr.io/catonetworks/cato-mcp-server
 
-Start by building the Docker image:
-In this folder, execute:
-```bash
-docker build -t catonetworks/mcp-server .
-```
 
-Then, configure your MCP client (e.g. Claude) like this:
-
+## Claude-Desktop mcp-server configuration example:
+add the following to: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
 ```json
 {
   "mcpServers": {
@@ -30,7 +26,7 @@ Then, configure your MCP client (e.g. Claude) like this:
           "-e", "CATO_API_HOST=api.catonetworks.com",
           "-e", "CATO_ACCOUNT_ID=<your Cato Account ID>",
           "-e", "CATO_API_KEY=<your Cato API Key>",
-          "catonetworks/mcp-server"
+          "ghcr.io/catonetworks/cato-mcp-server:latest"
       ],
       "disabled": false,
       "autoApprove": []
@@ -38,11 +34,6 @@ Then, configure your MCP client (e.g. Claude) like this:
   }
 }
 ```
-
-## Development
-Building from source:
-`yarn install`
-`yarn build`
 
 ## Configuration
 The server requires the following environment variables:
@@ -53,7 +44,6 @@ CATO_API_HOST: "api.catonetworks.com"
 CATO_ACCOUNT_ID: "1234567"
 # The Cato API-KEY for authentication
 CATO_API_KEY: "123abc"
-CATO_LOG_LEVEL="debug"|"info"|"error" (optional env var to set log level. default: "info")
 ```
 
 ## Available Tools
@@ -70,8 +60,13 @@ CATO_LOG_LEVEL="debug"|"info"|"error" (optional env var to set log level. defaul
 |                   | user_connection_details | Offers session-specific data for connected remote users, such as uptime, connection duration, and associated PoP details.                                 |
 |                   | user_software_versions  | Lists operating system and Cato Client version information for connected remote users.                                                                    |
 
+## Development
+### Building from source:
+`yarn install`  
+`yarn build`
 
-## Registration in Claude-Desktop
+
+### Claude-Desktop configuration example:
 add the following to: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
 ```json
 {
@@ -89,5 +84,33 @@ add the following to: `~/Library/Application\ Support/Claude/claude_desktop_conf
             "autoApprove": []
         }        
     }
+}
+```
+
+### Building the Docker image:
+at the root of the project, run:
+```bash
+docker build -t catonetworks/cato-mcp-server .
+```
+## Claude-Desktop mcp-server configuration example:
+add the following to: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
+```json
+{
+  "mcpServers": {
+    "cato": {
+      "command": "docker",
+      "args": [
+          "run",
+          "--rm",
+          "-i",
+          "-e", "CATO_API_HOST=api.catonetworks.com",
+          "-e", "CATO_ACCOUNT_ID=<your Cato Account ID>",
+          "-e", "CATO_API_KEY=<your Cato API Key>",
+          "catonetworks/cato-mcp-server"
+      ],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
 }
 ```
