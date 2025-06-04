@@ -57,35 +57,18 @@ CATO_LOG_LEVEL="debug"|"info"|"error" (optional env var to set log level. defaul
 ```
 
 ## Available Tools
-### sites_snapshot
-Description: Returns information about connected sites for a specified account.
 
-Parameters:
-```properties
-accountID: (Optional) Unique identifier of the account
-siteIDs: (Optional) List of site IDs to filter results. Pass as JSON array, e.g. ["12345"]
-```
-
-### users_snapshot
-Description: Returns information about connected users for a specified account.
-
-Parameters:
-```properties
-accountID: (Optional) Unique identifier of the account
-userIDs: (Optional) Specific user IDs to include in results. Pass as JSON array, e.g. ["12345"]
-```
-
-### entity_lookup
-Description: Lookup an entity in the specified account.
-
-Parameters:
-```properties
-accountID: (Optional) Unique identifier of the account
-type: (Required) The entity type
-limit: (Optional) Max number of results
-search: a search string for the entity name
-```
-
+| Category          | Tool                    | Description                                                                                                                                               |
+|-------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Entity Lookup     | entity_lookup           | Retrieve a list of entities of a specific type (e.g., users, sites, services),with optional filtering (e.g., by name) and pagination support.             |
+| Sites             | site_types              | Provides details for all configured sites, including connection methods (e.g., Socket, IPSEC, vSocket).                                                   |
+|                   | sites_by_location       | Returns site data enriched with geographic location and associated PoP connectivity information.                                                          |
+|                   | socket_versions         | Lists version information for all deployed Sockets, including site association.                                                                           |
+|                   | degraded_sites          | Identifies sites experiencing connectivity degradation (e.g., latency, packet loss) or High Availability (HA) issues such as socket redundancy failures.  |
+|                   | wan_connectivity        | Provides real-time metrics for WAN links at each site, including traffic volume, packet loss, latency, and jitter, to assess link performance and health. |
+| Users and Clients | user_details            | Provides profile and status information for connected remote users, including device name, operating system, and connection status.                       |
+|                   | user_connection_details | Offers session-specific data for connected remote users, such as uptime, connection duration, and associated PoP details.                                 |
+|                   | user_software_versions  | Lists operating system and Cato Client version information for connected remote users.                                                                    |
 
 
 ## Registration in Claude-Desktop
