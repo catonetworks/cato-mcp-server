@@ -39,6 +39,7 @@ add the following to: `~/Library/Application\ Support/Claude/claude_desktop_conf
 The server requires the following environment variables:
 ```properties
 # The hostname of the Cato API (without protocol). e.g.: api.catonetworks.com
+# For details about your Cato API hostname, please see: https://support.catonetworks.com/hc/en-us/articles/20564679978397-What-is-the-Cato-API
 CATO_API_HOST: "api.catonetworks.com"
 # The Cato account-id
 CATO_ACCOUNT_ID: "1234567"
