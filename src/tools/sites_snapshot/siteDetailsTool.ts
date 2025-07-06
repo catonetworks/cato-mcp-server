@@ -1,8 +1,8 @@
 import {CatoMcpToolWrapper, McpToolDef, McpToolDefContext} from "../common/catoMcpTool.js";
 
-export function buildDegradedSitesTool(ctx: McpToolDefContext): CatoMcpToolWrapper {
+export function buildSiteDetailsTool(ctx: McpToolDefContext): CatoMcpToolWrapper {
     const toolDef: McpToolDef = {
-        name: "degraded_sites",
+        name: "site_details",
         description: `Retrieves comprehensive site details from the Account Snapshot.
             This tool fetches a comprehensive list of all sites within an account from the latest Account Snapshot. 
             It provides detailed information for each site, including its \`operationalStatus\`, \`connectivityStatus\`, 
@@ -40,7 +40,7 @@ export function buildDegradedSitesTool(ctx: McpToolDefContext): CatoMcpToolWrapp
 
 
 const gqlQuery = `
-query degradedSites($accountID: ID!) {
+query siteDetails($accountID: ID!) {
   accountSnapshot(accountID: $accountID) {
     id
     timestamp

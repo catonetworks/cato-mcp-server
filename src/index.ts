@@ -95,33 +95,78 @@ function registerMcpTools() {
 }
 
 /**
+ * Extract default values from tool schema properties
+ * @param toolName the name of the tool
+ */
+function extractToolDefaultValues(toolName: string): Record<string, any> {
+    const variables: Record<string, any> = {};
+
+    // Get the tool definition to access default values
+    const tool = findMcpTool(toolName);
+    const toolProperties = tool.toolDef.inputSchema.properties as Record<string, any>;
+
+    // Apply default values from the schema
+    for (const propName in toolProperties) {
+        const propDef = toolProperties[propName];
+        if (propDef.default !== undefined) {
+            variables[propName] = propDef.default;
+            log(LoggingLevelSchema.Enum.debug, `Applied default for ${propName}: ${propDef.default}`);
+        }
+    }
+
+    return variables;
+}
+
+/**
+ * Override default variables with LLM-provided arguments
+ * @param variablesDefaultValues the default variables from tool schema
+ * @param toolName the name of the tool (for error reporting)
+ * @param mcpToolRequestArguments the mcp tool invocation request arguments
+ */
+function llmProvidedVariablesOverride(
+    variablesDefaultValues: Record<string, any>,
+    toolName: string,
+    mcpToolRequestArguments: Record<string, unknown> | undefined
+): Record<string, any> {
+    const variables = { ...variablesDefaultValues };
+
+    // Override with provided arguments
+    if (mcpToolRequestArguments) {
+        for (const argName in mcpToolRequestArguments) {
+            if (mcpToolRequestArguments[argName] !== undefined && mcpToolRequestArguments[argName] !== null) {
+                let argValue = mcpToolRequestArguments[argName];
+                if (typeof argValue === 'string' && (argValue.trim().startsWith('{') || argValue.trim().startsWith('['))) {
+                    try {
+                        argValue = JSON.parse(argValue);
+                    } catch (e) {
+                        throw new Error(`Error parsing ${toolName} tool argument ${argName} with value ${argValue}: ${e}`);
+                    }
+                }
+                variables[argName] = argValue;
+                log(LoggingLevelSchema.Enum.debug, `Override ${argName} with provided value: ${argValue}`);
+            }
+        }
+    }
+
+    return variables;
+}
+
+/**
  * prepare the GraphQL variables for the request
  * @param toolName the name of the tool
  * @param mcpToolRequestArguments the mcp tool invocation request arguments
  * @param inputHandler an optional input handler to modify the variables before sending the request
  */
 function prepareGraphqlVariables(toolName: string, mcpToolRequestArguments: Record<string, unknown> | undefined, inputHandler?: ((variables: Record<string, any>) => Record<string, any>) | undefined) {
-    const variables: Record<string, any> = {};
-    for (const argName in mcpToolRequestArguments) {
-        if (mcpToolRequestArguments[argName] !== undefined && mcpToolRequestArguments[argName] !== null) {
-            let argValue = mcpToolRequestArguments[argName];
-            if (typeof argValue === 'string' && (argValue.trim().startsWith('{') || argValue.trim().startsWith('['))) {
-                try {
-                    argValue = JSON.parse(argValue);
-                } catch (e) {
-                    throw new Error(`Error parsing ${toolName} tool argument ${argName} with value ${argValue}: ${e}`);
-                }
-            }
-            variables[argName] = argValue;
-        }
+    const variablesDefaultValues = extractToolDefaultValues(toolName);
+    const variablesWithOverrides = llmProvidedVariablesOverride(variablesDefaultValues, toolName, mcpToolRequestArguments);
+
+    if (!inputHandler) {
+        return variablesWithOverrides;
     }
-
-    if (inputHandler) {
-        inputHandler(variables);
-    }
-
-
-    return variables;
+    const handledVariables = inputHandler(variablesWithOverrides);
+    log(LoggingLevelSchema.Enum.debug, `Variables after inputHandler: ${JSON.stringify(handledVariables)}`);
+    return handledVariables;
 }
 
 
