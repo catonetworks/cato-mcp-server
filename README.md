@@ -49,17 +49,22 @@ CATO_API_KEY: "123abc"
 
 ## Available Tools
 
-| Category          | Tool                    | Description                                                                                                                                               |
-|-------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Entity Lookup     | entity_lookup           | Retrieve a list of entities of a specific type (e.g., users, sites, services),with optional filtering (e.g., by name) and pagination support.             |
-| Sites             | site_types              | Provides details for all configured sites, including connection methods (e.g., Socket, IPSEC, vSocket).                                                   |
-|                   | sites_by_location       | Returns site data enriched with geographic location and associated PoP connectivity information.                                                          |
-|                   | socket_versions         | Lists version information for all deployed Sockets, including site association.                                                                           |
-|                   | degraded_sites          | Identifies sites experiencing connectivity degradation (e.g., latency, packet loss) or High Availability (HA) issues such as socket redundancy failures.  |
-|                   | wan_connectivity        | Provides real-time metrics for WAN links at each site, including traffic volume, packet loss, latency, and jitter, to assess link performance and health. |
-| Users and Clients | user_details            | Provides profile and status information for connected remote users, including device name, operating system, and connection status.                       |
-|                   | user_connection_details | Offers session-specific data for connected remote users, such as uptime, connection duration, and associated PoP details.                                 |
-|                   | user_software_versions  | Lists operating system and Cato Client version information for connected remote users.                                                                    |
+| Category          | Tool                     | Description                                                                                                                                                   |
+|-------------------|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Entity Lookup     | entity_lookup            | Retrieve a list of entities of a specific type (e.g., users, sites, services),with optional filtering (e.g., by name) and pagination support.                 |
+| Sites             | sites_by_location        | Returns site data enriched with geographic location and associated PoP connectivity information.                                                              |
+|                   | site_details             | Retrieves comprehensive site details including operational status, connectivity status, High Availability (HA) information, and device interface statuses.    |
+|                   | site_types               | Provides details for all configured sites, including connection methods (e.g., Socket, IPSEC, vSocket).                                                       |
+|                   | socket_versions          | Lists version information for all deployed Sockets, including site association.                                                                               |
+|                   | wan_connectivity         | Provides real-time metrics for WAN links at each site, including traffic volume, packet loss, latency, and jitter, to assess link performance and health.     |
+| Users and Clients | user_details             | Provides profile and status information for connected remote users, including device name, operating system, and connection status.                           |
+|                   | user_connection_details  | Offers session-specific data for connected remote users, such as uptime, connection duration, and associated PoP details.                                     |
+|                   | user_software_versions   | Lists operating system and Cato Client version information for connected remote users.                                                                        |
+| Account Metrics   | site_network_health      | Retrieves a summary of network health for sites over a specified time frame, identifying sites with poor network quality (high packet loss, latency, jitter). |
+|                   | top_bandwidth_consumers  | Ranks sites or remote users by total traffic (bytesUpstream + bytesDownstream) in a given time frame for capacity planning and traffic analysis.              |
+|                   | metrics_timeseries_query | Retrieves time-bucketed metrics data for sites or users, enabling trend analysis, peak detection, and traffic pattern identification.                         |
+|                   | metrics_site_summary     | Provides aggregated metrics analysis for sites grouped by various dimensions like site type, connection type, region, or interface role.                      |
+|                   | annotation_event_counter | Analyzes infrastructure change events and annotations to track stability and identify sites with frequent changes or issues.                                  |
 
 ## Development
 ### Building from source:

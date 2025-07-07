@@ -6,7 +6,7 @@ export function buildEntityLookupTool(ctx: McpToolDefContext): CatoMcpToolWrappe
 
     const toolDef: McpToolDef = {
         name: "entity_lookup",
-        description: "Lookup entities with a specific type, potentially filtered and paged.",
+        description: "Lookup entities with a specific type, potentially filtered and paged. This tool can be used as a helper tool to get the IDs of entities that are relevant to the user's request.",
         inputSchema: {
             type: "object",
             properties: {
