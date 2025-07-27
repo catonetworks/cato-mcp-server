@@ -93,11 +93,7 @@ export async function handleGraphqlResponse(variables: Record<string, any>, resp
 
     let result = await response.json();
 
-    // Handle errors in the GraphQL response
-    if (result.errors && result.errors.length > 0 && (!result.data || result.data.length === 0)) {
-        const errorMessage = result.errors.map((e: any) => e.message).join(', ');
-        throw new Error(`GraphQL errors: ${errorMessage}`);
-    }
+    validateGraphqlResponseBody(result);
 
     if (responseHandler) {
         result = responseHandler(variables, result);
@@ -109,4 +105,19 @@ export async function handleGraphqlResponse(variables: Record<string, any>, resp
     }
 
     return responseText;
+}
+
+function validateGraphqlResponseBody(result: any) {
+
+    // log all errors
+    if (result.errors && result.errors.length > 0) {
+        log(LoggingLevelSchema.Enum.error, `GraphQL response errors: ${JSON.stringify(result.errors)}`);
+    }
+
+    // throw an error if no data, or all data fields are null
+    if (!result.data || result.data.length === 0 || Object.values(result.data).every(value => value === null)) {
+        const errorMessage = result.errors.map((e: any) => e.message).join(', ');
+        throw new Error(`GraphQL errors: ${errorMessage}`);
+    }
+
 }
