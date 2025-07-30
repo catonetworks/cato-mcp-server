@@ -94,7 +94,7 @@ export function buildEntityLookupTool(ctx: McpToolDefContext): CatoMcpToolWrappe
                 },
                 from: {
                     type: "number",
-                    description: "Sets the offset number of items (for paging)"
+                    description: "Sets the offset number of items (for paging), needs to be in jumps of 1000 (in case the first page is 0, the second page is 1000, etc)",
                 },
                 limit: {
                     type: "number",

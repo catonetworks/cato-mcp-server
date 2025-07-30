@@ -1,4 +1,4 @@
-import {log} from "../../utils/mcpLogger.js";
+import {log} from "./mcpLogger.js";
 import {LoggingLevelSchema} from "@modelcontextprotocol/sdk/types.js";
 
 // Constants
@@ -33,10 +33,10 @@ export const AGGREGATION_FUNCTIONS = {
 // Input standardization
 export function standardizeMetricsInput(variables: Record<string, any>): Record<string, any> {
     if (!variables.siteIDs) {
-        variables.siteIDs = null;
+        variables.siteIDs = [];
     }
     if (!variables.userIDs) {
-        variables.userIDs = null;
+        variables.userIDs = [];
     }
     if (!variables.annotationTypes) {
         variables.annotationTypes = null;
@@ -160,13 +160,23 @@ export function sortResults(results: any[], sortBy: string, sortOrder: string = 
     });
 }
 
-export function isValidMetricResponse(accountId: string, response: any): boolean {
+export function isValidSiteMetricResponse(accountId: string, response: any): boolean {
 
     if (response.data?.accountMetrics?.sites) {
         return true;
     }
 
     log(LoggingLevelSchema.Enum.debug, `No site metrics found in account metrics for account ID: ${accountId}`);
+    return false;
+}
+
+export function isValidUserMetricResponse(accountId: string, response: any): boolean {
+
+    if (response.data?.accountMetrics?.users) {
+        return true;
+    }
+
+    log(LoggingLevelSchema.Enum.debug, `No user metrics found in account metrics for account ID: ${accountId}`);
     return false;
 }
 
