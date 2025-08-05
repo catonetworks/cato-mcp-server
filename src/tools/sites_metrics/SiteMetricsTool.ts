@@ -77,7 +77,7 @@ function handleInput(variables: Record<string, any>): Record<string, any> {
 }
 
 const gqlQuery = `
-query metricsSite($accountID: ID!, $timeFrame: TimeFrame!, $siteIDs: [ID!], $groupInterfaces: Boolean = true, $groupDevices: Boolean = true) {
+query siteMetrics($accountID: ID!, $timeFrame: TimeFrame!, $siteIDs: [ID!], $groupInterfaces: Boolean = true, $groupDevices: Boolean = true) {
   accountMetrics(accountID: $accountID, timeFrame: $timeFrame, groupInterfaces: $groupInterfaces, groupDevices: $groupDevices) {
     id
     from

@@ -111,7 +111,7 @@ function handleInput(variables: Record<string, any>): Record<string, any> {
 }
 
 const gqlQuery = `
-query metricsSiteTimeseries($accountID: ID!, $timeFrame: TimeFrame!, $buckets: Int!, $labels: [TimeseriesMetricType!]!, $siteIDs: [ID!], $groupInterfaces: Boolean = true, $groupDevices: Boolean = true, $perSecond: Boolean = false) {
+query siteMetricsTimeseries($accountID: ID!, $timeFrame: TimeFrame!, $buckets: Int!, $labels: [TimeseriesMetricType!]!, $siteIDs: [ID!], $groupInterfaces: Boolean = true, $groupDevices: Boolean = true, $perSecond: Boolean = false) {
   accountMetrics(accountID: $accountID, timeFrame: $timeFrame, groupInterfaces: $groupInterfaces, groupDevices: $groupDevices) {
     id
     from
