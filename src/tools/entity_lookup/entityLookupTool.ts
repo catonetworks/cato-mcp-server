@@ -98,7 +98,8 @@ export function buildEntityLookupTool(ctx: McpToolDefContext): CatoMcpToolWrappe
                 },
                 limit: {
                     type: "number",
-                    description: "Sets the maximum number of items to retrieve"
+                    description: "Sets the maximum number of items to retrieve",
+                    default: 1000
                 },
                 helperFields: {
                     type: "array",
