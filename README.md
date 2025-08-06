@@ -14,7 +14,7 @@ The server is available as a docker image at ghcr.io/catonetworks/cato-mcp-serve
 
 ## Add the following to Claude-Desktop config file:\
 MacOS: `~/Library/Application\ Support/Claude/claude_desktop_config.json`\
-Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+Windows: `%APPDATA%\Claude\claude_desktop_config.json` 
 ```json
 {
   "mcpServers": {
