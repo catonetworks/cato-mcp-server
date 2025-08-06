@@ -1,30 +1,32 @@
 import {CatoMcpToolWrapper, McpToolDef, McpToolDefContext} from "../common/catoMcpTool.js";
 import {
     emptyMetricsResponse, 
-    isValidMetricResponse, 
+    isValidSiteMetricResponse, 
     DEFAULT_TIMEFRAME, 
     DEFAULT_BUCKETS,
     standardizeMetricsInput,
     calculateSummary,
     calculateHostUtilization
-} from "./metricsUtils.js";
+} from "../../utils/metricsUtils.js";
 
-export function buildMetricsTimeseriesQueryTool(ctx: McpToolDefContext): CatoMcpToolWrapper {
+export function buildSiteMetricsTimeseriesTool(ctx: McpToolDefContext): CatoMcpToolWrapper {
     const toolDef: McpToolDef = {
-        name: "metrics_timeseries_query",
-        description: `NOTE: Returns raw bucketed timestamp/value arrays; does NOT pre-aggregate metrics like average RTT per site.
+        name: "site_metrics_timeseries",
+        description: `Retrieves time-bucketed metrics data for sites, enabling trend analysis, peak detection, and traffic pattern identification.
 
-Retrieves time-bucketed metrics data for sites or users, enabling trend analysis, peak detection, and traffic pattern identification.
+NOTE: Returns raw bucketed timestamp/value arrays; does NOT pre-aggregate metrics like average RTT per site.
+
+For aggregated metrics without timeseries data, use the 'site_metrics' tool instead.
         
-        BYTE VALUES: Returns raw byte values (not formatted) to preserve precision for mathematical operations and trend analysis. Unit information is provided in the 'units' field. When byte values are referenced in formatted units, they use binary units (MiB, GiB, etc.) with base 1024, not decimal units (MB, GB, etc.) with base 1000.
+BYTE VALUES: Returns raw byte values (not formatted) to preserve precision for mathematical operations and trend analysis. Unit information is provided in the 'units' field. When byte values are referenced in formatted units, they use binary units (MiB, GiB, etc.) with base 1024, not decimal units (MB, GB, etc.) with base 1000.
         
-        Example questions this tool can help answer:
-        - "How has total account traffic trended hour-by-hour over the last 48 hours?"
-        - "Which sites exceeded 1 Gbit of total traffic in any 15-minute bucket last week?"
-        - "What is the trend of tunnelAge for each interface over the past 7 days?"
-        - "For each site, what was the peak packetsDownstream count in the past 90 days?"
-        - "Identify time periods when any site's lastMileLatency exceeded 500 ms."
-        - "Show me hourly hostCount variations for all sites to identify capacity planning needs."`,
+Example questions this tool can help answer:
+- "How has total account sites traffic trended hour-by-hour over the last 48 hours?"
+- "Which sites exceeded 1 Gbit of total traffic in any 15-minute bucket last week?"
+- "What is the trend of tunnelAge for each interface over the past 7 days?"
+- "For each site, what was the peak packetsDownstream count in the past 90 days?"
+- "Identify time periods when any site's lastMileLatency exceeded 500 ms."
+- "Show me hourly hostCount variations for all sites to identify capacity planning needs."`,
         inputSchema: {
             type: "object",
             properties: {
@@ -68,16 +70,6 @@ Retrieves time-bucketed metrics data for sites or users, enabling trend analysis
                     items: {type: "string"},
                     description: "Optional list of site IDs to filter by. If omitted, returns data for all sites."
                 },
-                userIDs: {
-                    type: "array",
-                    items: {type: "string"},
-                    description: "Optional list of user IDs to filter by. If omitted and includeUsers is true, returns data for all users."
-                },
-                includeUsers: {
-                    type: "boolean",
-                    description: "Whether to include remote user timeseries data in addition to sites.",
-                    default: false
-                },
                 groupInterfaces: {
                     type: "boolean",
                     description: "For sites, whether to aggregate all interfaces into a single timeseries per site.",
@@ -115,19 +107,11 @@ Retrieves time-bucketed metrics data for sites or users, enabling trend analysis
 }
 
 function handleInput(variables: Record<string, any>): Record<string, any> {
-    variables = standardizeMetricsInput(variables);
-    
-    // Handle user inclusion logic based on documentation
-    if (!variables.includeUsers || !variables.userIDs) {
-        variables.includeUsers = false;
-        variables.userIDs = null;
-    }
-    
-    return variables;
+    return standardizeMetricsInput(variables);
 }
 
 const gqlQuery = `
-query metricsTimeseries($accountID: ID!, $timeFrame: TimeFrame!, $buckets: Int!, $labels: [TimeseriesMetricType!]!, $siteIDs: [ID!], $userIDs: [ID!], $includeUsers: Boolean = false, $groupInterfaces: Boolean = true, $groupDevices: Boolean = true, $perSecond: Boolean = false) {
+query siteMetricsTimeseries($accountID: ID!, $timeFrame: TimeFrame!, $buckets: Int!, $labels: [TimeseriesMetricType!]!, $siteIDs: [ID!], $groupInterfaces: Boolean = true, $groupDevices: Boolean = true, $perSecond: Boolean = false) {
   accountMetrics(accountID: $accountID, timeFrame: $timeFrame, groupInterfaces: $groupInterfaces, groupDevices: $groupDevices) {
     id
     from
@@ -180,10 +164,6 @@ query metricsTimeseries($accountID: ID!, $timeFrame: TimeFrame!, $buckets: Int!,
           info
         }
       }
-    }
-    users(userIDs: $userIDs) @include(if: $includeUsers) {
-      id
-      name
     }
   }
 }
@@ -375,24 +355,10 @@ function aggregateTimeseriesData(metrics: any[]): number[][] {
     return aggregatedData;
 }
 
-function processUserTimeseries(users: any[]): any[] {
-    const userTimeseries: any[] = [];
-    for (const user of users || []) {
-        const userData: any = {
-            userId: user.id,
-            userName: user.name,
-            note: "User timeseries data comes from account-level timeseries when userIDs filter is applied"
-        };
-        userTimeseries.push(userData);
-    }
-    return userTimeseries;
-}
-
 function handleResponse(variables: Record<string, any>, response: any): any {
-    if (!isValidMetricResponse(variables.accountID, response)) {
+    if (!isValidSiteMetricResponse(variables.accountID, response)) {
         return emptyMetricsResponse(response.data?.accountMetrics)
     }
-
     const accountMetrics = response.data.accountMetrics;
     const aggregationFn = variables.aggregationFunction || 'sum';
     const buckets = variables.buckets || DEFAULT_BUCKETS;
@@ -409,9 +375,6 @@ function handleResponse(variables: Record<string, any>, response: any): any {
         siteTimeseries.push(siteData);
     }
 
-    // Process user data
-    const userTimeseries = processUserTimeseries(accountMetrics.users);
-
     return {
         data: {
             timeFrame: {
@@ -423,13 +386,11 @@ function handleResponse(variables: Record<string, any>, response: any): any {
             summary: {
                 accountTimeseriesReturned: accountTimeseries.length,
                 sitesReturned: siteTimeseries.length,
-                usersReturned: userTimeseries.length,
                 metricsRequested: requestedLabels,
-                note: "Account timeseries represents aggregated data. Site data shows per-site metrics (hostCount, flowCount, hostLimit) and per-interface metrics, with aggregated site metrics when groupInterfaces=true. User-specific timeseries are reflected in account timeseries when userIDs filter is applied."
+                note: "Account timeseries represents aggregated data. Site data shows per-site metrics (hostCount, flowCount, hostLimit) and per-interface metrics, with aggregated site metrics when groupInterfaces=true."
             },
             accountTimeseries: accountTimeseries,
             sites: siteTimeseries,
-            users: userTimeseries
         }
     };
 } 

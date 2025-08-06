@@ -1,9 +1,9 @@
 import {CatoMcpToolWrapper, McpToolDef, McpToolDefContext} from "../common/catoMcpTool.js";
 import {
     emptyMetricsResponse, 
-    isValidMetricResponse, 
+    isValidSiteMetricResponse, 
     standardizeMetricsInput
-} from "./metricsUtils.js";
+} from "../../utils/metricsUtils.js";
 
 // Default values for annotation event counter tool
 const ANNOTATION_DEFAULT_TIMEFRAME = "last.P30D";
@@ -157,10 +157,9 @@ query annotationEventCounter($accountID: ID!, $timeFrame: TimeFrame!, $siteIDs: 
 `
 
 function handleResponse(variables: Record<string, any>, response: any): any {
-    if (!isValidMetricResponse(variables.accountID, response)) {
+    if (!isValidSiteMetricResponse(variables.accountID, response)) {
         return emptyMetricsResponse(response.data?.accountMetrics)
     }
-
     const accountMetrics = response.data.accountMetrics;
     const groupBy = variables.groupBy || DEFAULT_GROUP_BY;
     const annotationTypes = variables.annotationTypes || DEFAULT_ANNOTATION_TYPES;

@@ -2,7 +2,8 @@ import {CatoMcpToolWrapper, McpToolDefContext} from "./common/catoMcpTool.js";
 import {buildEntityLookupTool} from "./entity_lookup/entityLookupTool.js";
 import {buildSiteSnapshotTools} from "./sites_snapshot/tools.js";
 import {buildUserSnapshotTools} from "./users_snapshot/tools.js";
-import {buildAccountMetricsTools} from "./account_metrics/tools.js";
+import {buildAccountMetricsTools as buildSitesAccountMetricsTools} from "./sites_metrics/tools.js";
+import {buildUserAccountMetricsTools} from "./users_metrics/tools.js";
 
 
 // cato mcp tools
@@ -37,7 +38,8 @@ export function initCatoMcpToolWrappers(accountId: string) {
     const tools = [buildEntityLookupTool(ctx),
         ...buildSiteSnapshotTools(ctx),
         ...buildUserSnapshotTools(ctx),
-        ...buildAccountMetricsTools(ctx)
+        ...buildSitesAccountMetricsTools(ctx),
+        ...buildUserAccountMetricsTools(ctx)
     ];
     tools.forEach(tool => catoMcpToolWrappers.set(tool.toolDef.name, tool));
 }

@@ -1,18 +1,18 @@
 import {CatoMcpToolWrapper, McpToolDef, McpToolDefContext} from "../common/catoMcpTool.js";
 import {
-    emptyMetricsResponse, 
-    isValidMetricResponse, 
-    formatBytes, 
-    DEFAULT_TIMEFRAME, 
+    emptyMetricsResponse,
+    isValidSiteMetricResponse,
+    formatBytes,
+    DEFAULT_TIMEFRAME,
     DEFAULT_TOP_N,
     standardizeMetricsInput,
     calculateBytesTotal
-} from "./metricsUtils.js";
+} from "../../utils/metricsUtils.js";
 
-export function buildTopBandwidthConsumersTool(ctx: McpToolDefContext): CatoMcpToolWrapper {
+export function buildTopSiteBandwidthConsumersTool(ctx: McpToolDefContext): CatoMcpToolWrapper {
     const toolDef: McpToolDef = {
-        name: "top_bandwidth_consumers",
-        description: `Ranks sites or remote users by total traffic (bytesUpstream + bytesDownstream) in a given time frame. Useful for capacity planning and identifying unusual traffic patterns.
+        name: "top_site_bandwidth_consumers",
+        description: `Ranks sites by total traffic (bytesUpstream + bytesDownstream) in a given time frame. Useful for capacity planning and identifying unusual traffic patterns.
         
         NOTE: Byte values are automatically formatted using binary units (KiB, MiB, GiB, etc.) with base 1024 for human readability. Raw byte totals are also provided for calculations.`,
         inputSchema: {
@@ -28,11 +28,12 @@ export function buildTopBandwidthConsumersTool(ctx: McpToolDefContext): CatoMcpT
                     description: "Time frame for the data. Format: 'last.P{duration}' (e.g., 'last.P1D' for 1 day) or 'utc.{date/time range}' (e.g., 'utc.2023-01-{01/00:00:00--31/23:59:59}').",
                     default: DEFAULT_TIMEFRAME
                 },
-                consumerType: {
-                    type: "string",
-                    enum: ["sites", "users"],
-                    description: "The type of consumer to analyze: 'sites' for site traffic or 'users' for remote user traffic.",
-                    default: "sites"
+                siteIDs: {
+                    type: "array",
+                    items: {
+                        type: "string"
+                    },
+                    description: "Optional list of site IDs to filter by. If not provided, all sites will be considered."
                 },
                 topN: {
                     type: "integer",
@@ -43,7 +44,7 @@ export function buildTopBandwidthConsumersTool(ctx: McpToolDefContext): CatoMcpT
                 },
                 groupInterfaces: {
                     type: "boolean",
-                    description: "For sites, whether to aggregate traffic from all interfaces into a single total per site before ranking. Ignored for users.",
+                    description: "For sites, whether to aggregate traffic from all interfaces into a single total per site before ranking.",
                     default: true
                 }
             },
@@ -62,40 +63,20 @@ export function buildTopBandwidthConsumersTool(ctx: McpToolDefContext): CatoMcpT
 }
 
 function handleInput(variables: Record<string, any>): Record<string, any> {
-    variables = standardizeMetricsInput(variables);
-    
-    // Set withUsers based on consumerType
-    variables.withUsers = variables.consumerType === 'users';
-    
-    // If users are requested but no userIDs provided, set to null to get all users
-    if (variables.withUsers && !variables.userIDs) {
-        variables.userIDs = null;
-    } else if (!variables.withUsers) {
-        variables.userIDs = null;
-    }
-    
-    return variables;
+    return standardizeMetricsInput(variables);
 }
 
 const gqlQuery = `
-query topBandwidthConsumers($accountID: ID!, $timeFrame: TimeFrame!, $userIDs: [ID!], $withUsers: Boolean = false, $groupInterfaces: Boolean = true) {
+query topSiteBandwidthConsumers($accountID: ID!, $timeFrame: TimeFrame!, $siteIDs: [ID!], $groupInterfaces: Boolean = true) {
   accountMetrics(accountID: $accountID, timeFrame: $timeFrame, groupInterfaces: $groupInterfaces) {
     id
     from
     to
-    sites {
+    sites(siteIDs: $siteIDs) {
       id
       info {
         name
       }
-      metrics {
-        bytesUpstream
-        bytesDownstream
-      }
-    }
-    users(userIDs: $userIDs) @include(if: $withUsers) {
-      id
-      name
       metrics {
         bytesUpstream
         bytesDownstream
@@ -106,17 +87,17 @@ query topBandwidthConsumers($accountID: ID!, $timeFrame: TimeFrame!, $userIDs: [
 `
 
 function handleResponse(variables: Record<string, any>, response: any): any {
-    if (!isValidMetricResponse(variables.accountID, response)) {
+    if (!isValidSiteMetricResponse(variables.accountID, response)) {
         return emptyMetricsResponse(response.data?.accountMetrics)
     }
+    const accountMetrics = response.data.accountMetrics;
 
-    const consumerType = variables.consumerType || 'sites';
     const topN = variables.topN || DEFAULT_TOP_N;
     
-    const consumers = consumerType === 'sites' ? response.data.accountMetrics.sites : response.data.accountMetrics.users;
+    const consumers = accountMetrics.sites;
 
     if (!consumers) {
-        return emptyMetricsResponse(response.data.accountMetrics);
+        return emptyMetricsResponse(accountMetrics);
     }
     
     const rankedConsumers = consumers.map((consumer: any) => {
@@ -143,7 +124,7 @@ function handleResponse(variables: Record<string, any>, response: any): any {
                 to: response.data.accountMetrics.to,
             },
             summary: {
-                consumerType: consumerType,
+                consumerType: "sites",
                 showingTop: rankedConsumers.length,
             },
             topConsumers: rankedConsumers,

@@ -1,16 +1,14 @@
 import {CatoMcpToolWrapper, McpToolDef, McpToolDefContext} from "../common/catoMcpTool.js";
-import {log} from "../../utils/mcpLogger.js";
-import {LoggingLevelSchema} from "@modelcontextprotocol/sdk/types.js";
 import {emptyUsersResponse, isValidResponse} from "./userUtils.js";
 
 export function buildUsersDetailsTool(ctx: McpToolDefContext): CatoMcpToolWrapper {
     const toolDef: McpToolDef = {
         name: "user_details",
-        description: `Retrieves two comprehensive lists from the Account Snapshot: 'remoteUsers' which returns all connected remote VPN users and 'inOfficeUsers' that returns all connected VPN users in office.
+        description: `Retrieves two comprehensive lists from the Account Snapshot: 'remoteUsers' which returns all connected remote VPN users and 'inOfficeUsers' that returns all connected VPN users in office. 
             When asked about all the connected users in the account, consider the users from both lists. This tool only returns currently connected users by default.
             For each user in the snapshot, it returns: name, popName, connectedInOffice, osType and client version. 
             If the connectedInOffice parameter is true the user is in-office, meaning their client uses the office's socket connection; when False it is considered a remote user. 
-
+            
             To get information about disconnected users: First use the entity_lookup tool with type 'vpnUser' to retrieve user IDs, then call this tool with the 'userIDs' parameter to get details for those specific users (regardless of connection status).
             
             In addition to individual user data, this tool also calculates and returns the following aggregate metrics:
@@ -91,12 +89,10 @@ function handleResponse(variables: Record<string, any>, response: any): any {
     const inOfficeUsers = connectedUsers.filter((user: any) => user.connectedInOffice);
 
     const usersCountPerPopName: Record<string, number> = {};
-    const devicesCountPerPopName: Record<string, number> = {};
 
     for (const user of connectedUsers) {
         const popName = user.popName || "Unknown";
         usersCountPerPopName[popName] = (usersCountPerPopName[popName] || 0) + 1;
-        devicesCountPerPopName[popName] = (devicesCountPerPopName[popName] || 0) + 1;
     }
 
     let note = "";
@@ -116,7 +112,6 @@ function handleResponse(variables: Record<string, any>, response: any): any {
             inOfficeUsers: inOfficeUsers,
             inOfficeUsersCount: inOfficeUsers.length,
             usersCountPerPopName: usersCountPerPopName,
-            devicesCountPerPopName: devicesCountPerPopName,
             note: note,
             userIDs_filter_applied: variables.userIDs || null
         }

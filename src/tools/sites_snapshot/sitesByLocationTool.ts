@@ -107,7 +107,7 @@ function handleResponse(variables: Record<string, any>, response: any): any {
         const popName = site.popName || "Unknown";
         sitesCountByPopName[popName] = (sitesCountByPopName[popName] || 0) + 1;
         const location = buildLocationString(site);
-        sitesCountByLocation[location] = (sitesCountByPopName[location] || 0) + 1;
+        sitesCountByLocation[location] = (sitesCountByLocation[location] || 0) + 1;
     }
 
     return {

@@ -1,7 +1,7 @@
 import {CatoMcpToolWrapper, McpToolDef, McpToolDefContext} from "../common/catoMcpTool.js";
 import {
     emptyMetricsResponse, 
-    isValidMetricResponse, 
+    isValidSiteMetricResponse, 
     formatBytes, 
     DEFAULT_TIMEFRAME,
     standardizeMetricsInput,
@@ -12,11 +12,11 @@ import {
     generateHealthFlags,
     GROUP_KEY_GENERATORS,
     sortResults
-} from "./metricsUtils.js";
+} from "../../utils/metricsUtils.js";
 
-export function buildMetricsSiteSummaryTool(ctx: McpToolDefContext): CatoMcpToolWrapper {
+export function buildSiteMetricsSummaryTool(ctx: McpToolDefContext): CatoMcpToolWrapper {
     const toolDef: McpToolDef = {
-        name: "metrics_site_summary",
+        name: "site_metrics_summary",
         description: `NOTE: Returns only one aggregated record per group (no per-timestamp arrays).
 
 Provides aggregated metrics analysis for sites grouped by various dimensions like site type, connection type, region, or interface role. Includes capacity utilization analysis and comparative statistics.
@@ -124,7 +124,7 @@ function handleInput(variables: Record<string, any>): Record<string, any> {
 }
 
 const gqlQuery = `
-query metricsSiteSummary($accountID: ID!, $timeFrame: TimeFrame!, $siteIDs: [ID!], $groupInterfaces: Boolean, $groupDevices: Boolean) {
+query siteMetricsSummary($accountID: ID!, $timeFrame: TimeFrame!, $siteIDs: [ID!], $groupInterfaces: Boolean, $groupDevices: Boolean) {
   accountMetrics(accountID: $accountID, timeFrame: $timeFrame, groupInterfaces: $groupInterfaces, groupDevices: $groupDevices) {
     id
     from
@@ -362,10 +362,9 @@ function addDerivedMetrics(aggregated: any): void {
 }
 
 function handleResponse(variables: Record<string, any>, response: any): any {
-    if (!isValidMetricResponse(variables.accountID, response)) {
+    if (!isValidSiteMetricResponse(variables.accountID, response)) {
         return emptyMetricsResponse(response.data?.accountMetrics)
     }
-
     const accountMetrics = response.data.accountMetrics;
     const sortBy = variables.sortBy || 'bytesTotal';
     const sortOrder = variables.sortOrder || 'desc';

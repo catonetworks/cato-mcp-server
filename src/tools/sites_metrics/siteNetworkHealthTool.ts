@@ -1,10 +1,10 @@
 import {CatoMcpToolWrapper, McpToolDef, McpToolDefContext} from "../common/catoMcpTool.js";
 import {
     emptyMetricsResponse, 
-    isValidMetricResponse, 
+    isValidSiteMetricResponse, 
     DEFAULT_TIMEFRAME, 
     HEALTH_THRESHOLDS
-} from "./metricsUtils.js";
+} from "../../utils/metricsUtils.js";
 
 export function buildSiteNetworkHealthTool(ctx: McpToolDefContext): CatoMcpToolWrapper {
     const toolDef: McpToolDef = {
@@ -91,11 +91,12 @@ query siteNetworkHealth($accountID: ID!, $timeFrame: TimeFrame!, $groupInterface
 `
 
 function handleResponse(variables: Record<string, any>, response: any): any {
-    if (!isValidMetricResponse(variables.accountID, response)) {
+    if (!isValidSiteMetricResponse(variables.accountID, response)) {
         return emptyMetricsResponse(response.data?.accountMetrics)
     }
+    const accountMetrics = response.data.accountMetrics;
 
-    const allSites = response.data.accountMetrics.sites;
+    const allSites = accountMetrics.sites;
     const unhealthySites: any[] = [];
 
     const rttThreshold = variables.rttThreshold || HEALTH_THRESHOLDS.RTT;
