@@ -21,7 +21,7 @@ For aggregated metrics without timeseries data, use the 'site_metrics' tool inst
 BYTE VALUES: Returns raw byte values (not formatted) to preserve precision for mathematical operations and trend analysis. Unit information is provided in the 'units' field. When byte values are referenced in formatted units, they use binary units (MiB, GiB, etc.) with base 1024, not decimal units (MB, GB, etc.) with base 1000.
         
 Example questions this tool can help answer:
-- "How has total account traffic trended hour-by-hour over the last 48 hours?"
+- "How has total account sites traffic trended hour-by-hour over the last 48 hours?"
 - "Which sites exceeded 1 Gbit of total traffic in any 15-minute bucket last week?"
 - "What is the trend of tunnelAge for each interface over the past 7 days?"
 - "For each site, what was the peak packetsDownstream count in the past 90 days?"

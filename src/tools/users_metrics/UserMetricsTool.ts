@@ -23,9 +23,15 @@ IMPORTANT: This tool only returns data for users connected via VPN and will not 
 - User-level aggregated metrics: bytes (up/down/total), packets (up/down), packet discard counts, packet loss counts, RTT, duration, granularity, host/flow counts and limits
 - Interface breakdown with metrics: bandwidth, packets, latency, packet loss, jitter, discard counts, geographic and provider details
 
-For timeseries data and trend analysis, use the 'user_metrics_timeseries' tool instead.
+    For timeseries data and trend analysis, use the 'user_metrics_timeseries' tool instead.
 
-BYTE VALUES: Returns raw byte values to preserve precision. Unit information is provided in the 'units' field.`,
+    Example questions this tool can help answer:
+    - "What are the total bandwidth consumption stats for each user over the last 24 hours?"
+    - "Which users have the highest packet loss percentages today?"
+    - "Show me current host utilization for all users"
+    - "What's the average RTT for each user's interfaces this week?"
+
+    BYTE VALUES: Returns raw byte values to preserve precision. Unit information is provided in the 'units' field.`,
         inputSchema: {
             type: "object",
             properties: {
