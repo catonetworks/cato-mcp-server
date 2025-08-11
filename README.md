@@ -41,7 +41,7 @@ Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 ### Notes:
 - The `--pull always` option ensures that the AI Agent application (e.g. Claude-Desktop) uses cato-mcp-server's most updated version.\
 The AI Agent application running cato-mcp-server might open a popup asking for permissions to access data from other apps.\
-<img width="262" height="250" alt="image" src="https://github.com/user-attachments/assets/584ce9d3-8bcf-4109-9dcc-3b7ca948e6e4" />
+<img width="262" height="250" alt="image" src="https://github.com/user-attachments/assets/584ce9d3-8bcf-4109-9dcc-3b7ca948e6e4" />\
   - If you don't wish to allow this, you can remove the `--pull always` option, but then you will need to manually update the image when a new version is released by executing:
   ```bash
   docker pull ghcr.io/catonetworks/cato-mcp-server:latest
