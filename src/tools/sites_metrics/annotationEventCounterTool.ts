@@ -3,7 +3,6 @@ import {
     emptyMetricsResponse, 
     isValidSiteMetricResponse, 
     standardizeMetricsInput,
-    ANNOTATION_DEFAULT_TIMEFRAME
 } from "../../utils/metricsUtils.js";
 
 // Default values for annotation event counter tool
@@ -11,6 +10,7 @@ const DEFAULT_ANNOTATION_TYPES = ["popChange", "remoteIPChange", "roleChange"];
 const DEFAULT_GROUP_BY = "site";
 const DEFAULT_INCLUDE_TIMESTAMPS = false;
 const DEFAULT_MIN_EVENT_COUNT = 1;
+const ANNOTATION_DEFAULT_TIMEFRAME = "last.P30D";
 
 /**
  * Generates a group key based on the grouping strategy
