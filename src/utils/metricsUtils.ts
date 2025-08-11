@@ -3,6 +3,7 @@ import {LoggingLevelSchema} from "@modelcontextprotocol/sdk/types.js";
 
 // Constants
 export const DEFAULT_TIMEFRAME = "last.P1D";
+export const ANNOTATION_DEFAULT_TIMEFRAME = "last.P30D";
 export const DEFAULT_BUCKETS = 24;
 export const DEFAULT_TOP_N = 5;
 
