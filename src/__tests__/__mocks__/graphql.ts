@@ -2,6 +2,8 @@
  * Mock for GraphQL client
  */
 
+import { vi } from 'vitest';
+
 export const mockGraphqlResponse = {
   data: {
     sites: [
@@ -26,11 +28,11 @@ export const mockGraphqlError = {
   ]
 };
 
-export const mockExecuteGraphqlRequest = jest.fn().mockResolvedValue(JSON.stringify(mockGraphqlResponse));
+export const mockExecuteGraphqlRequest = vi.fn().mockResolvedValue(JSON.stringify(mockGraphqlResponse));
 
-export const mockInitializeGraphqlClient = jest.fn();
+export const mockInitializeGraphqlClient = vi.fn();
 
-export const mockBuildGraphqlRequest = jest.fn().mockReturnValue({
+export const mockBuildGraphqlRequest = vi.fn().mockReturnValue({
   method: 'POST',
   headers: {
     'User-Agent': 'Cato MCP Server',
@@ -43,4 +45,4 @@ export const mockBuildGraphqlRequest = jest.fn().mockReturnValue({
   })
 });
 
-export const mockHandleGraphqlResponse = jest.fn().mockResolvedValue(JSON.stringify(mockGraphqlResponse));
+export const mockHandleGraphqlResponse = vi.fn().mockResolvedValue(JSON.stringify(mockGraphqlResponse));

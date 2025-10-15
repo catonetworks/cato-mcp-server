@@ -142,7 +142,7 @@ describe('MCP Server Core Functionality', () => {
     it('should work with logger', async () => {
       const { initMcpLogger, log } = await import('../../utils/mcpLogger.js');
       
-      expect(() => initMcpLogger(mockServer)).not.toThrow();
+      expect(() => initMcpLogger(mockServer as any)).not.toThrow();
       expect(() => log('info', 'Test message')).not.toThrow();
     });
   });

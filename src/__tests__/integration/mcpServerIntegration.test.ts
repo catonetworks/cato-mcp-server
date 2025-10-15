@@ -65,7 +65,7 @@ describe('MCP Server Integration', () => {
       expect(() => initializeGraphqlClient()).not.toThrow();
       
       // Test logger
-      expect(() => initMcpLogger(mockServer)).not.toThrow();
+      expect(() => initMcpLogger(mockServer as any)).not.toThrow();
       expect(() => log('info', 'Test message')).not.toThrow();
       
       // Test environment variables
