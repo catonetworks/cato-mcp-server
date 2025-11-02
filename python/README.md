@@ -165,13 +165,15 @@ Add the following to: `~/Library/Application Support/Claude/claude_desktop_confi
             "args": ["-m", "src"],
             "cwd": "/path/to/cato-mcp-server/python",
             "env": {
+                "PYTHONPATH": "/path/to/cato-mcp-server/python",
                 "CATO_API_HOST": "api.catonetworks.com",
                 "CATO_ACCOUNT_ID": "1234567",
                 "CATO_API_KEY": "123abc",
                 "CATO_LOG_LEVEL": "debug"
             },
             "disabled": false,
-            "autoApprove": []
+            "autoApprove": [],
+            "cwd": "/path/to/cato-mcp-server/python/"
         }        
     }
 }
