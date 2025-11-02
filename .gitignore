@@ -36,3 +36,7 @@ tests/
 *.bak
 *.tmp
 *.tgz
+__pycache__/
+*.lcov
+.coverage
+.python-version

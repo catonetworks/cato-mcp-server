@@ -1,63 +1,70 @@
-# Cato MCP CMA
+# Cato MCP Server (Python)
 
-A Model Context Protocol (MCP) server implementation that integrates with Cato CMA Public API.
+A Model Context Protocol (MCP) server implementation in Python that integrates with Cato CMA Public API.
 
 ## Overview
 
-This server implements the Model Context Protocol to allow AI assistants to interact with Cato's GraphQL API.  
-It provides tools that enable AI models to query and retrieve information from Cato systems in a standardized way.
+This is the Python port of the Cato MCP Server, providing equivalent functionality to the TypeScript version. This server implements the Model Context Protocol to allow AI assistants to interact with Cato's GraphQL API. It provides tools that enable AI models to query and retrieve information from Cato systems in a standardized way.
 
 The provided MCP server has been tested for compatibility with popular MCP clients (non-free tier) - such as Cursor and Claude Desktop using the Claude Sonnet 4 model, and is recommended for use with these clients.
 
-The server is available as a docker image at ghcr.io/catonetworks/cato-mcp-server
+## Installation
 
+### Prerequisites
 
-## Add the following to Claude-Desktop config file:\
-MacOS: `~/Library/Application\ Support/Claude/claude_desktop_config.json`\
-Windows: `%APPDATA%\Claude\claude_desktop_config.json` 
-```json
-{
-  "mcpServers": {
-    "cato": {
-      "command": "docker",
-      "args": [
-          "run",
-          "--rm",
-          "--pull",
-          "always",
-          "-i",
-          "-e", "CATO_API_HOST=<your Cato API Host>",
-          "-e", "CATO_ACCOUNT_ID=<your Cato Account ID>",
-          "-e", "CATO_API_KEY=<your Cato API Key>",
-          "ghcr.io/catonetworks/cato-mcp-server:latest"
-      ],
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
+- Python 3.10 or higher
+- pip or poetry for package management
+
+### Setup
+
+1. Install dependencies:
+
+```bash
+pip install -r requirements.txt
 ```
 
-### Notes:
-- The `--pull always` option ensures that the AI Agent application (e.g. Claude-Desktop) uses cato-mcp-server's most updated version.\
-The AI Agent application running cato-mcp-server might open a popup asking for permissions to access data from other apps.\
-<img width="262" height="250" alt="image" src="https://github.com/user-attachments/assets/584ce9d3-8bcf-4109-9dcc-3b7ca948e6e4" />\
-  - If you don't wish to allow this, you can remove the `--pull always` option, but then you will need to manually update the image when a new version is released by executing:
-  ```bash
-  docker pull ghcr.io/catonetworks/cato-mcp-server:latest
-  ```
+For development:
 
+```bash
+pip install -r requirements-dev.txt
+```
+
+### Using with Python
+
+You can run the Python MCP server directly:
+
+```bash
+python -m src
+```
+
+Or set up as an executable:
+
+```bash
+pip install -e .
+cato-mcp-server
+```
 
 ## Configuration
+
 The server requires the following environment variables:
+
 ```properties
 # The hostname of the Cato API (without protocol). e.g.: api.catonetworks.com
 # For details about your Cato API hostname, please see: https://support.catonetworks.com/hc/en-us/articles/20564679978397-What-is-the-Cato-API
 CATO_API_HOST: "api.catonetworks.com"
+
 # The Cato account-id
 CATO_ACCOUNT_ID: "1234567"
+
 # The Cato API-KEY for authentication
 CATO_API_KEY: "123abc"
+
+# Optional: Maximum response length (default: 200000)
+CATO_MAX_RESPONSE_LENGTH: "200000"
+
+# Optional: Logging level (default: info)
+# Options: debug, info, warning, error
+CATO_LOG_LEVEL: "info"
 ```
 
 ## Available Tools
@@ -84,33 +91,107 @@ CATO_API_KEY: "123abc"
 |                   | user_metrics                  | Returns aggregated metrics for VPN-connected users (no timeseries data).                                                                                                              |
 
 ## Development
+
 ### Building from source:
-`yarn install`  
-`yarn build`
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+
+# Run the server
+python -m src
+```
 
 ### Testing:
-`yarn test` - Run all tests  
-`yarn test:watch` - Run tests in watch mode  
-`yarn test:coverage` - Run tests with coverage report  
-`yarn test:ui` - Run tests with interactive UI  
-`yarn test:ci` - Run tests for CI (no watch, with coverage)
 
-See [src/__tests__/README.md](src/__tests__/README.md) for detailed testing documentation.
+```bash
+# Run all tests
+pytest
 
+# Run tests with coverage
+pytest --cov=src --cov-report=html --cov-report=term
 
-### Claude-Desktop configuration example:
-add the following to: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
+# Run tests in watch mode (if pytest-watch is installed)
+ptw
+
+# Run specific test file
+pytest tests/unit/test_env.py
+
+# Run integration tests
+pytest tests/integration/
+```
+
+### Project Structure
+
+```
+python/
+├── src/
+│   ├── __main__.py          # Main entry point
+│   ├── graphql/
+│   │   └── graphql.py        # GraphQL client
+│   ├── tools/
+│   │   ├── tools.py          # Tool registry
+│   │   ├── common/
+│   │   ├── entity_lookup/
+│   │   ├── sites_snapshot/
+│   │   ├── users_snapshot/
+│   │   ├── sites_metrics/
+│   │   └── users_metrics/
+│   └── utils/
+│       ├── env.py            # Environment utilities
+│       ├── mcp_logger.py     # MCP logger
+│       └── metrics_utils.py   # Metrics utilities
+├── tests/
+│   ├── conftest.py          # Pytest configuration
+│   ├── unit/                # Unit tests
+│   └── integration/         # Integration tests
+├── pyproject.toml           # Project configuration
+├── requirements.txt         # Production dependencies
+├── requirements-dev.txt     # Development dependencies
+├── pytest.ini              # Pytest configuration
+└── README.md               # This file
+```
+
+## Claude-Desktop Configuration Example
+
+Add the following to: `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
 ```json
 {
     "mcpServers": {
         "cato": {
-            "command": "node",
-            "args": ["/path/to/cato-mcp-cma/build/index.js"],
+            "command": "python",
+            "args": ["-m", "src"],
+            "cwd": "/path/to/cato-mcp-server/python",
             "env": {
+                "PYTHONPATH": "/path/to/cato-mcp-server/python",
                 "CATO_API_HOST": "api.catonetworks.com",
                 "CATO_ACCOUNT_ID": "1234567",
                 "CATO_API_KEY": "123abc",
                 "CATO_LOG_LEVEL": "debug"
+            },
+            "disabled": false,
+            "autoApprove": [],
+            "cwd": "/path/to/cato-mcp-server/python/"
+        }        
+    }
+}
+```
+
+Or if using a virtual environment:
+
+```json
+{
+    "mcpServers": {
+        "cato": {
+            "command": "/path/to/venv/bin/python",
+            "args": ["-m", "src"],
+            "cwd": "/path/to/cato-mcp-server/python",
+            "env": {
+                "CATO_API_HOST": "api.catonetworks.com",
+                "CATO_ACCOUNT_ID": "1234567",
+                "CATO_API_KEY": "123abc"
             },
             "disabled": false,
             "autoApprove": []
@@ -119,30 +200,88 @@ add the following to: `~/Library/Application\ Support/Claude/claude_desktop_conf
 }
 ```
 
-### Building the Docker image:
-at the root of the project, run:
+## Docker Usage (Optional)
+
+You can also use the Python server in Docker. Create a `Dockerfile` in the `python/` directory:
+
+```dockerfile
+FROM python:3.10-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY src/ ./src/
+
+CMD ["python", "-m", "src"]
+```
+
+Then build and run:
+
 ```bash
-docker build -t catonetworks/cato-mcp-server .
+docker build -t cato-mcp-server-python .
+docker run --rm -i \
+  -e CATO_API_HOST=api.catonetworks.com \
+  -e CATO_ACCOUNT_ID=1234567 \
+  -e CATO_API_KEY=123abc \
+  cato-mcp-server-python
 ```
-## Claude-Desktop mcp-server configuration example:
-add the following to: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
-```json
-{
-  "mcpServers": {
-    "cato": {
-      "command": "docker",
-      "args": [
-          "run",
-          "--rm",
-          "-i",
-          "-e", "CATO_API_HOST=api.catonetworks.com",
-          "-e", "CATO_ACCOUNT_ID=<your Cato Account ID>",
-          "-e", "CATO_API_KEY=<your Cato API Key>",
-          "catonetworks/cato-mcp-server"
-      ],
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
+
+## Differences from TypeScript Version
+
+This Python implementation maintains feature parity with the TypeScript version:
+
+- All tools are ported with equivalent functionality
+- Same GraphQL queries and response handling
+- Equivalent error handling and logging
+- Same environment variable configuration
+- Equivalent test coverage structure
+
+The main differences are:
+- Uses Python's `asyncio` for async operations instead of JavaScript promises
+- Uses `httpx` for HTTP requests instead of native `fetch`
+- Uses `pytest` for testing instead of `vitest`
+- Uses Python's type hints instead of TypeScript types
+
+## Troubleshooting
+
+### Import Errors
+
+If you encounter import errors, ensure you're running from the correct directory:
+
+```bash
+cd python
+python -m src
 ```
+
+Or set the PYTHONPATH:
+
+```bash
+export PYTHONPATH=/path/to/cato-mcp-server/python:$PYTHONPATH
+python -m src
+```
+
+### MCP SDK Issues
+
+Make sure you have the correct MCP SDK package installed:
+
+```bash
+pip install mcp>=1.0.0
+```
+
+### Environment Variables
+
+Ensure all required environment variables are set before running:
+
+```bash
+export CATO_API_HOST=api.catonetworks.com
+export CATO_ACCOUNT_ID=1234567
+export CATO_API_KEY=your-api-key
+python -m src
+```
+
+## License
+
+ISC
+
