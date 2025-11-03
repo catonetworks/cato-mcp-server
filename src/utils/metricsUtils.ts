@@ -161,6 +161,9 @@ export function sortResults(results: any[], sortBy: string, sortOrder: string = 
 }
 
 export function isValidSiteMetricResponse(accountId: string, response: any): boolean {
+    if (!response || !response.data) {
+        return false;
+    }
 
     if (response.data?.accountMetrics?.sites) {
         return true;
@@ -171,6 +174,9 @@ export function isValidSiteMetricResponse(accountId: string, response: any): boo
 }
 
 export function isValidUserMetricResponse(accountId: string, response: any): boolean {
+    if (!response || !response.data) {
+        return false;
+    }
 
     if (response.data?.accountMetrics?.users) {
         return true;

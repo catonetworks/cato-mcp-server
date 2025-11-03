@@ -2,6 +2,9 @@ import {log} from "../../utils/mcpLogger.js";
 import {LoggingLevelSchema} from "@modelcontextprotocol/sdk/types.js";
 
 export function isValidResponse(accountId: string, response: any): boolean {
+    if (!response || !response.data) {
+        return false;
+    }
 
     if (response.data?.accountSnapshot?.users) {
         return true;

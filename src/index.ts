@@ -83,9 +83,12 @@ function registerMcpTools() {
             return {
                 content: [
                     {
-                        errors: {
-                            message: `Error executing tool: ${error instanceof Error ? error.message : String(error)}`
-                        }
+                        type: "text",
+                        text: JSON.stringify({
+                            errors: {
+                                message: `Error executing tool: ${error instanceof Error ? error.message : String(error)}`
+                            }
+                        })
                     }
                 ]
             };

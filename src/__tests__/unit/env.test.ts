@@ -1,52 +1,56 @@
 /**
  * Unit tests for environment utilities
+ * Tests the actual implementation, not mocks
  */
 
-import { describe, it, expect, vi } from 'vitest';
-
-// Mock the env module
-vi.mock('../../utils/env.js', () => ({
-  getEnvVariable: vi.fn()
-}));
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { getEnvVariable } from '../../utils/env.js';
 
 describe('Environment Utilities', () => {
-  it('should handle environment variable retrieval', async () => {
-    const { getEnvVariable } = await import('../../utils/env.js');
-    
-    // Mock the implementation
-    vi.mocked(getEnvVariable).mockImplementation((key: string, defaultValue?: string) => {
-      if (key === 'CATO_API_HOST') return 'api.catonetworks.com';
-      if (key === 'CATO_ACCOUNT_ID') return '1234567';
-      if (key === 'CATO_API_KEY') return 'test-key';
-      return defaultValue || '';
-    });
+  const originalEnv = process.env;
 
-    // Test that the function is called with correct parameters
-    expect(getEnvVariable).toBeDefined();
+  beforeEach(() => {
+    // Clear env before each test
+    process.env = { ...originalEnv };
   });
 
-  it('should use default values when environment variables are not set', async () => {
-    const { getEnvVariable } = await import('../../utils/env.js');
-    
-    vi.mocked(getEnvVariable).mockImplementation((key: string, defaultValue?: string) => {
-      if (key === 'CATO_MAX_RESPONSE_LENGTH') return defaultValue || '200000';
-      return defaultValue || '';
-    });
-
-    const result = getEnvVariable('CATO_MAX_RESPONSE_LENGTH', '200000');
-    expect(result).toBe('200000');
+  afterEach(() => {
+    // Restore original env
+    process.env = originalEnv;
   });
 
-  it('should throw error for required environment variables', async () => {
-    const { getEnvVariable } = await import('../../utils/env.js');
-    
-    vi.mocked(getEnvVariable).mockImplementation((key: string) => {
-      if (key === 'CATO_API_HOST') return 'api.catonetworks.com';
-      if (key === 'CATO_ACCOUNT_ID') return '1234567';
-      if (key === 'CATO_API_KEY') return 'test-key';
-      throw new Error(`Environment variable ${key} is required`);
-    });
+  it('should return environment variable when set', () => {
+    process.env['TEST_VAR'] = 'test-value';
+    expect(getEnvVariable('TEST_VAR')).toBe('test-value');
+  });
 
-    expect(() => getEnvVariable('REQUIRED_VAR')).toThrow('Environment variable REQUIRED_VAR is required');
+  it('should return default value when environment variable is not set', () => {
+    delete process.env['TEST_VAR'];
+    expect(getEnvVariable('TEST_VAR', 'default-value')).toBe('default-value');
+  });
+
+  it('should throw error when environment variable is not set and no default provided', () => {
+    delete process.env['REQUIRED_VAR'];
+    expect(() => getEnvVariable('REQUIRED_VAR')).toThrow('Environment variable REQUIRED_VAR is not set');
+  });
+
+  it('should prefer environment variable over default value', () => {
+    process.env['TEST_VAR'] = 'env-value';
+    expect(getEnvVariable('TEST_VAR', 'default-value')).toBe('env-value');
+  });
+
+  it('should handle empty string as a valid value', () => {
+    process.env['EMPTY_VAR'] = '';
+    expect(getEnvVariable('EMPTY_VAR', 'default')).toBe('');
+  });
+
+  it('should handle numeric strings', () => {
+    process.env['NUM_VAR'] = '12345';
+    expect(getEnvVariable('NUM_VAR')).toBe('12345');
+  });
+
+  it('should handle boolean-like strings', () => {
+    process.env['BOOL_VAR'] = 'true';
+    expect(getEnvVariable('BOOL_VAR')).toBe('true');
   });
 });

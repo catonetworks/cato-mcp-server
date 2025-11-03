@@ -15,8 +15,9 @@ src/__tests__/
 │   ├── basic.test.ts       # Basic functionality tests
 │   ├── utils.test.ts       # Utility function tests
 │   └── env.test.ts         # Environment utilities tests
-└── integration/             # Integration tests (to be added)
-    └── mcpServer.test.ts   # MCP server integration tests
+└── integration/             # Integration tests
+    ├── mcpServer.test.ts   # MCP server integration tests
+    └── mcpProtocol.test.ts # Protocol-level black-box tests
 ```
 
 ## Running Tests
@@ -76,6 +77,36 @@ describe('MyModule', () => {
 ### Integration Tests
 Integration tests should test the interaction between multiple modules or the full MCP server functionality.
 
+### Protocol-Level Black-Box Tests
+
+**Location:** `src/__tests__/integration/mcpProtocol.test.ts`
+
+These tests validate the MCP server contract at the protocol level, ensuring behavioral contracts that survive language transitions (TypeScript → Python).
+
+**Benefits:**
+- ✅ Tests actual user behavior via MCP protocol
+- ✅ Creates behavioral contracts for migration validation  
+- ✅ Survives language transition from TypeScript to Python
+- ✅ Tests the complete request pipeline: discovery → execution → response
+
+**Test Coverage:**
+1. **Tool Discovery** - Validates all expected tools are listed with correct schemas
+2. **Tool Execution Contracts** - Validates input/output transformations
+3. **End-to-End Pipeline** - Tests complete flow from tool discovery to response
+4. **Input/Output Validation** - Ensures tools accept correct inputs and return structured JSON
+
+**Running Protocol Tests:**
+```bash
+# Run protocol tests (requires built server)
+yarn build && yarn test src/__tests__/integration/mcpProtocol.test.ts
+```
+
+**Migration-Friendly Testing:**
+When implementing Python version, these protocol tests should continue to work with minimal changes:
+- The MCP protocol contract remains the same
+- Only the test setup (client connection) needs to be adapted to Python's MCP client SDK
+- Behavioral contracts ensure Python implementation matches TypeScript behavior
+
 ### Mocking
 - Use `__mocks__` directory for reusable mocks
 - Mock external dependencies like GraphQL client, environment variables
@@ -103,6 +134,14 @@ The test suite aims for good coverage of:
 - Error handling
 - Edge cases
 - Integration scenarios
+- **Protocol-level contracts** (MCP protocol compliance)
+
+**Missing Critical Coverage:**
+- Individual tool implementations - None of the 15+ MCP tools have unit tests
+- MCP request pipeline - End-to-end flow from tool call to GraphQL response (partially covered by protocol tests)
+- Tool input/output transformations - Domain-specific business logic validation (partially covered by protocol tests)
+
+**Recommendation:** Consider protocol-level black-box tests (already implemented) that survive the language transition. These tests validate behavioral contracts rather than implementation details, making them ideal for migration validation.
 
 Coverage reports are generated in the `coverage/` directory with HTML, LCOV, and text formats.
 
