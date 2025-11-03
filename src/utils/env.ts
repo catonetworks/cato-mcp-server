@@ -5,10 +5,10 @@
  */
 export function getEnvVariable(name: string, defaultValue?:string): string {
     const value = process.env[name];
-    if (value) {
+    if (value !== undefined) {
         return value;
     }
-    if (defaultValue) {
+    if (defaultValue !== undefined) {
         return defaultValue;
     }
     throw new Error(`Environment variable ${name} is not set`);

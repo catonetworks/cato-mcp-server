@@ -88,6 +88,15 @@ CATO_API_KEY: "123abc"
 `yarn install`  
 `yarn build`
 
+### Testing:
+`yarn test` - Run all tests  
+`yarn test:watch` - Run tests in watch mode  
+`yarn test:coverage` - Run tests with coverage report  
+`yarn test:ui` - Run tests with interactive UI  
+`yarn test:ci` - Run tests for CI (no watch, with coverage)
+
+See [src/__tests__/README.md](src/__tests__/README.md) for detailed testing documentation.
+
 
 ### Claude-Desktop configuration example:
 add the following to: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
