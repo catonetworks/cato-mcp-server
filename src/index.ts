@@ -81,11 +81,11 @@ function registerMcpTools() {
         } catch (error) {
             log(LoggingLevelSchema.Enum.error, `Error executing ${toolName} tool: ${error}`);
             return {
+                isError: true,
                 content: [
                     {
-                        errors: {
-                            message: `Error executing tool: ${error instanceof Error ? error.message : String(error)}`
-                        }
+                        type: "text",
+                        text: `Error executing tool: ${error instanceof Error ? error.message : String(error)}`
                     }
                 ]
             };
